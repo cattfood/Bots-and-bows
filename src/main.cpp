@@ -14,6 +14,10 @@ using namespace vex;
 vex::brain       Brain;
 
 // define your global instances of motors and other devices here
+   bool clamp_toggle;
+void clamps() {
+   clamp_toggle = !clamp_toggle;
+   }
 
 
 int main() {
@@ -23,9 +27,12 @@ int main() {
    motor RF(5);
    motor lift(6, true);
    motor lift2(8, true);
+   pneumatic clamp = pneumatic(PORT9, true);
 
    controller con = controller();
 
+
+   
     while(true) {
         int l = con.AxisA.position();
         int r = con.AxisD.position();
@@ -45,6 +52,14 @@ int main() {
             lift.spin(forward, 0, rpm);
             lift2.spin(forward, 0, rpm);
             }
+            con.ButtonEDown.pressed(clamps);
+
+if(clamp_toggle) {
+    clamp.extend(cylinder1);
+}
+else {
+    clamp.retract(cylinder1);
+}
 
 //im writing more code
         // Allow other tasks to run
