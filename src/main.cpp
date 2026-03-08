@@ -28,6 +28,12 @@ int main() {
    motor beam1(PORT8, false);
    motor beam2(PORT2, true);
    pneumatic clamp = pneumatic(PORT9, true);
+   pneumatic aligner = pneumatic(PORT4, true);
+
+   lift.setStopping(hold);
+   lift2.setStopping(hold);
+   beam1.setStopping(hold);
+   beam2.setStopping(holld);
 
    controller con = controller();
 
@@ -42,6 +48,7 @@ int main() {
         int r = con.AxisD.position();
 bool clamp_toggle;
 bool claw_toggle;
+bool aligner_toggle
         RF.spin(forward, r, rpm);
         LF.spin(forward, l, rpm);
 
@@ -99,6 +106,19 @@ if(claw_toggle) {
 else {
     clamp.retract(cylinder1);
 }
+
+if(con.ButtonEUp.pressing()) {
+    aligner_toggle=!aligner_toggle;
+    wait(250, msec);
+}
+
+if(aligner_toggle) {
+    aligner.extend(cylinder1);
+}
+else {
+    aligner.retract(cylinder1);
+}
+
 //im writing more code
         // Allow other tasks to run
         wait(10, msec);
