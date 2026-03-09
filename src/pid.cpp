@@ -7,6 +7,8 @@
     int intergra1 = 0;
     int derivative = 0;
     float power = 0;
+    double true_target = 0;
+
 void set_constants(pidConstants constants) {
     t_conts = constants;
 }
@@ -20,11 +22,13 @@ power = t_conts.p * error + t_conts.d * derivative;
 return power;
 }
 
+
     void turn_heading(double target, pidConstants constants) {
       error = 0;
       intergra1 = 0;
       derivative = 0;
       power = 0; 
+      true_target = target;
         set_constants(constants);
       while(true) {
             current_heading = BrainInertial.heading(degrees); 
@@ -43,10 +47,14 @@ return power;
             break;
     } }
     
+    
 LF.spin(forward, 0, rpm);
 LR.spin(forward, 0, rpm);
 }
-void forward_move(float target, pidConstants constants){
+extern void forward_move(float target, float timeout = 100000, pidConstants constants (1, 0, 0)) {
+   
+    timer t1;
+
     error = 0;
     prev_error = 0;
     intergra1 = 0;
@@ -55,11 +63,20 @@ void forward_move(float target, pidConstants constants){
     float voltage;
     float encoder_avg;
 
-    while(true) {
+    while(t1.value() < timeout) {
+        double heading = BrainInertial.heading(degrees); 
+   double heading_error = true_target - positiion;
+   if (heading_error > 180) {
+    heading_error -= 360;
+   } 
+   if(heading_error < -180) {
+    heading_error += 360;
+   }
+   heading_correction = calc(0, -heaidng_error);
         encoder_avg = LF.position(degrees) + RF.position(degrees)/2;
         voltage = calc(target, encoder_avg);
-        LF.spin(forward, voltage, rpm);
-        RF.spin(forward, voltage, rpm);
+        LF.spin(forward, voltage + heading_correction, rpm);
+        RF.spin(forward, voltage - heading_correctcion, rpm);
 if (abs(error) < 1) {
     breaks;
 }
